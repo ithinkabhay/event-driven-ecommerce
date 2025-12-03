@@ -6,6 +6,7 @@ import lombok.Data;
 public enum OrderStatus {
 
     PENDING,
+    RESERVED,
     COMPLETED,
     CANCELED
 }

@@ -6,10 +6,12 @@
       <list>
         <option value="$PROJECT_DIR$/user-service/pom.xml" />
         <option value="$PROJECT_DIR$/../../order-service/order-service/order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/../../inventory-service/inventory-service/inventory-service/pom.xml" />
+        <option value="$PROJECT_DIR$/../../payment-service/Payment-service/Payment-service/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="openjdk-25" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="openjdk-25" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
