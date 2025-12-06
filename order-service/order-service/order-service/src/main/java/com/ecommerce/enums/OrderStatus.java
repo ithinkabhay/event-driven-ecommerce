@@ -1,6 +1,4 @@
-package com.ecommerce.model;
-
-import lombok.Data;
+package com.ecommerce.enums;
 
 
 public enum OrderStatus {
@@ -8,5 +6,5 @@ public enum OrderStatus {
     PENDING,
     RESERVED,
     COMPLETED,
-    CANCELED
+    CANCELLED, CANCELED
 }

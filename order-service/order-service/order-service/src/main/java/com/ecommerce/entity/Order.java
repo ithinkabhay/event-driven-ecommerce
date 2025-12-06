@@ -1,6 +1,6 @@
-package com.ecommerce.model.entity;
+package com.ecommerce.entity;
 
-import com.ecommerce.model.OrderStatus;
+import com.ecommerce.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +24,7 @@ public class Order {
     private String customerUsername; // from JWT
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private OrderStatus status;
 
     @Column(nullable = false)

@@ -4,9 +4,9 @@ import com.ecommerce.dto.CreateOrderRequest;
 import com.ecommerce.dto.OrderCreatedEvent;
 import com.ecommerce.dto.OrderResponse;
 import com.ecommerce.kafka.OrderEventProducer;
-import com.ecommerce.model.OrderStatus;
-import com.ecommerce.model.entity.Order;
-import com.ecommerce.model.entity.OrderItem;
+import com.ecommerce.enums.OrderStatus;
+import com.ecommerce.entity.Order;
+import com.ecommerce.entity.OrderItem;
 import com.ecommerce.repository.OrderRepository;
 import com.ecommerce.service.OrderService;
 import jakarta.transaction.Transactional;
@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
