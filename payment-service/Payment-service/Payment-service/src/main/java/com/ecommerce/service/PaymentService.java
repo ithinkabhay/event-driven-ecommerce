@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +21,6 @@ import java.util.Random;
 public class PaymentService {
 
     private final PaymentEventProducer eventProducer;
-    private final Random random = new Random();
 
     @Value("${stripe.currency}")
     private String currency;
@@ -30,52 +28,67 @@ public class PaymentService {
     public void processInventoryEvent(InventoryEvent event) {
         log.info("Processing InventoryEvent for orderId={} type={}", event.getOrderId(), event.getType());
 
+        // 1. Skip if inventory rejected
         if (event.getType() == InventoryEventType.INVENTORY_REJECTED) {
-            // If inventory was rejected, no payment to process.
             log.info("Skipping payment for orderId={} because inventory was rejected (reason={})",
                     event.getOrderId(), event.getReason());
             return;
         }
 
-        if (event.getAmount() == null){
-            log.warn("InventoryEvent Amount is null for OrderId+{}, skipping stripe payment", event.getOrderId());
+        // 2. Ensure amount is present
+        if (event.getAmount() == null) {
+            log.warn("InventoryEvent amount is null for orderId={}, skipping Stripe payment", event.getOrderId());
             return;
         }
 
-        // Inventory reserved -> simulate payment
-        BigDecimal amount = event.getAmount(); //
+        BigDecimal amount = event.getAmount();
+        long amountInCents = amount.multiply(BigDecimal.valueOf(100)).longValueExact();
 
-        Long amountInCents = amount.multiply(BigDecimal.valueOf(100)).longValueExact();
-
-        boolean success = false; // ~80% success rate
+        boolean success = false;
         String failureReason = null;
 
         try {
+            // 3. Build PaymentIntent params (disable redirect methods)
             PaymentIntentCreateParams params =
                     PaymentIntentCreateParams.builder()
                             .setAmount(amountInCents)
                             .setCurrency(currency)
-                            .setPaymentMethod("pm_card_visa")
+                            .setAutomaticPaymentMethods(
+                                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                            .setEnabled(true)
+                                            .setAllowRedirects(
+                                                    PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER
+                                            )
+                                            .build()
+                            )
+                            .setPaymentMethod("pm_card_visa") // Stripe test payment method
                             .setConfirm(true)
                             .build();
 
+            // 4. Call Stripe
             PaymentIntent intent = PaymentIntent.create(params);
 
             log.info("Stripe PaymentIntent created: id={}, status={}, amount={}",
                     intent.getId(), intent.getStatus(), intent.getAmount());
 
-            if ("success".equals(intent.getStatus())){
+            // ✅ THIS WAS THE BUG: Stripe uses "succeeded", not "success"
+            if ("succeeded".equalsIgnoreCase(intent.getStatus())) {
                 success = true;
-            }else {
+                failureReason = null;
+            } else {
+                success = false;
                 failureReason = "Stripe payment status: " + intent.getStatus();
             }
-        }catch (StripeException e){
-            log.error("Stripe Payment fails for orderId={}, error={}", event.getOrderId(), e.getMessage(), e);
+
+        } catch (StripeException e) {
+            log.error("Stripe payment fails for orderId={}, error={}", event.getOrderId(), e.getMessage(), e);
+            success = false;
             failureReason = "Stripe error: " + e.getMessage();
         }
 
+        // 5. Send PaymentEvent back to Kafka
         PaymentEvent paymentEvent;
-        if (success){
+        if (success) {
             log.info("Payment succeeded for orderId={} amount={}", event.getOrderId(), amount);
 
             paymentEvent = PaymentEvent.builder()
@@ -84,11 +97,12 @@ public class PaymentService {
                     .amount(amount)
                     .reason(null)
                     .build();
-        }else {
-            if (failureReason == null){
+        } else {
+            if (failureReason == null) {
                 failureReason = "Unknown payment failure";
             }
-            log.warn("Payment fails for orderId={} reason={}",event.getOrderId(), failureReason);
+            log.warn("Payment fails for orderId={} reason={}", event.getOrderId(), failureReason);
+
             paymentEvent = PaymentEvent.builder()
                     .orderId(event.getOrderId())
                     .type(PaymentEventType.PAYMENT_FAILED)
@@ -99,5 +113,4 @@ public class PaymentService {
 
         eventProducer.sendPaymentEvent(paymentEvent);
     }
-
 }
