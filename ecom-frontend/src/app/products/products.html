@@ -1,0 +1,21 @@
+<p>products works!</p>
+<div class="container mt-4">
+  <h3>Products</h3>
+
+  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div class="row">
+    <div class="col-md-4 mb-3" *ngFor="let p of products">
+      <div class="card h-100">
+        <img *ngIf="p.imageUrl" [src]="p.imageUrl" class="card-img-top" [alt]="p.name">
+        <div class="card-body">
+          <h5 class="card-title">{{ p.name }}</h5>
+          <p class="card-text">{{ p.description }}</p>
+          <p><strong>{{ p.price | currency }}</strong></p>
+          <button class="btn btn-primary" (click)="buy(p)">Buy now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
