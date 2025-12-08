@@ -45,6 +45,7 @@ public class InventoryServiceImpl implements InventoryService {
                 InventoryEvent invEvent = InventoryEvent.builder()
                         .orderId(event.getOrderId())
                         .type(InventoryEventType.INVENTORY_REJECTED)
+                        .amount(event.getTotalAmount())
                         .reason(reason)
                         .build();
 
@@ -70,6 +71,7 @@ public class InventoryServiceImpl implements InventoryService {
         InventoryEvent invEvent = InventoryEvent.builder()
                 .orderId(event.getOrderId())
                 .type(InventoryEventType.INVENTORY_RESERVED)
+                .amount(event.getTotalAmount())
                 .reason(null)
                 .build();
 

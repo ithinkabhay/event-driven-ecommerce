@@ -5,8 +5,12 @@ import com.ecommerce.dto.InventoryEventType;
 import com.ecommerce.dto.PaymentEvent;
 import com.ecommerce.dto.PaymentEventType;
 import com.ecommerce.kafka.PaymentEventProducer;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,6 +24,9 @@ public class PaymentService {
     private final PaymentEventProducer eventProducer;
     private final Random random = new Random();
 
+    @Value("${stripe.currency}")
+    private String currency;
+
     public void processInventoryEvent(InventoryEvent event) {
         log.info("Processing InventoryEvent for orderId={} type={}", event.getOrderId(), event.getType());
 
@@ -30,31 +37,67 @@ public class PaymentService {
             return;
         }
 
-        // Inventory reserved -> simulate payment
-        BigDecimal amount = BigDecimal.valueOf(100); // For demo, a fixed amount or later derive from order
+        if (event.getAmount() == null){
+            log.warn("InventoryEvent Amount is null for OrderId+{}, skipping stripe payment", event.getOrderId());
+            return;
+        }
 
-        boolean success = random.nextDouble() > 0.2; // ~80% success rate
+        // Inventory reserved -> simulate payment
+        BigDecimal amount = event.getAmount(); //
+
+        Long amountInCents = amount.multiply(BigDecimal.valueOf(100)).longValueExact();
+
+        boolean success = false; // ~80% success rate
+        String failureReason = null;
+
+        try {
+            PaymentIntentCreateParams params =
+                    PaymentIntentCreateParams.builder()
+                            .setAmount(amountInCents)
+                            .setCurrency(currency)
+                            .setPaymentMethod("pm_card_visa")
+                            .setConfirm(true)
+                            .build();
+
+            PaymentIntent intent = PaymentIntent.create(params);
+
+            log.info("Stripe PaymentIntent created: id={}, status={}, amount={}",
+                    intent.getId(), intent.getStatus(), intent.getAmount());
+
+            if ("success".equals(intent.getStatus())){
+                success = true;
+            }else {
+                failureReason = "Stripe payment status: " + intent.getStatus();
+            }
+        }catch (StripeException e){
+            log.error("Stripe Payment fails for orderId={}, error={}", event.getOrderId(), e.getMessage(), e);
+            failureReason = "Stripe error: " + e.getMessage();
+        }
 
         PaymentEvent paymentEvent;
-        if (success) {
-            log.info("Payment succeeded for orderId={}", event.getOrderId());
+        if (success){
+            log.info("Payment succeeded for orderId={} amount={}", event.getOrderId(), amount);
+
             paymentEvent = PaymentEvent.builder()
                     .orderId(event.getOrderId())
                     .type(PaymentEventType.PAYMENT_SUCCEEDED)
                     .amount(amount)
                     .reason(null)
                     .build();
-        } else {
-            String reason = "Payment gateway error";
-            log.warn("Payment failed for orderId={} reason={}", event.getOrderId(), reason);
+        }else {
+            if (failureReason == null){
+                failureReason = "Unknown payment failure";
+            }
+            log.warn("Payment fails for orderId={} reason={}",event.getOrderId(), failureReason);
             paymentEvent = PaymentEvent.builder()
                     .orderId(event.getOrderId())
                     .type(PaymentEventType.PAYMENT_FAILED)
                     .amount(amount)
-                    .reason(reason)
+                    .reason(failureReason)
                     .build();
         }
 
         eventProducer.sendPaymentEvent(paymentEvent);
     }
+
 }
