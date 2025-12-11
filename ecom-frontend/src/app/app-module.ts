@@ -1,5 +1,7 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';  // <-- add this
+
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -8,18 +10,25 @@ import { Products } from './products/products';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { JwtInterceptor } from './core/jwt-interceptor';
+import { Header } from './header/header';
+import { Cart } from './cart/cart';
+import { PaymentsComponent } from './payments/payments';
 
 @NgModule({
   declarations: [
     App,
     Login,
-    Products
+    Products,
+    Header,
+    Cart,
+    PaymentsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    CommonModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

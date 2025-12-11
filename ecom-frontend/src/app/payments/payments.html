@@ -1,0 +1,14 @@
+<div class="container mt-4">
+  <h3>Payment</h3>
+
+  <p>Total: {{ total | currency }}</p>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+  <div id="card-element" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div>
+
+  <button class="btn btn-primary mt-3" (click)="onPay()" [disabled]="isLoading">
+    {{ isLoading ? 'Processing...' : 'Pay now' }}
+  </button>
+</div>
