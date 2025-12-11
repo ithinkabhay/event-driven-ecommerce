@@ -34,6 +34,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/payments/webhook").permitAll()
                         .requestMatchers(
                                 "/user/**",
                                 "/v3/api-docs/**",
