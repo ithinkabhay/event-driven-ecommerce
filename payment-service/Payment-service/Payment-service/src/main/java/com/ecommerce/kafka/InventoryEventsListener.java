@@ -16,12 +16,12 @@ public class InventoryEventsListener {
         this.paymentService = paymentService;
     }
 
-    @KafkaListener(topics = "Inventory", groupId = "paymentService")
+    @KafkaListener(topics = "inventory", groupId = "paymentService")
     public void handleInventoryEvent(InventoryEvent inventoryEvent){
 
         log.info("Received InventoryEvent from kafka: orderID={} type={}",
                 inventoryEvent.getOrderId(), inventoryEvent.getType());
-        paymentService.processInventoryEvent(inventoryEvent);
+//        paymentService.processInventoryEvent(inventoryEvent);
 
     }
 }

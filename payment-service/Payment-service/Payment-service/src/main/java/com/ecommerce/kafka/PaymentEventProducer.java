@@ -20,5 +20,6 @@ public class PaymentEventProducer {
 
         log.info("Sending PaymentEvent to topic {} for orderId={} type={}", TOPIC, event.getOrderId(), event.getType());
         kafkaTemplate.send(TOPIC, event.getOrderId().toString(), event);
+
     }
 }
