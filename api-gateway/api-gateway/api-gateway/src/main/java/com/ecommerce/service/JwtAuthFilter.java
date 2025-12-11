@@ -21,6 +21,13 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
+
+        // ⬇⬇⬇ BYPASS JWT for Stripe Webhook
+        if (path.startsWith("/payments/webhook")) {
+            log.info("Skipping JWT filter for Stripe webhook path {}", path);
+            return chain.filter(exchange);
+        }
+
         // Allow auth endpoints without JWT
         if (path.startsWith("/user")) {
             return chain.filter(exchange);
