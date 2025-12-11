@@ -25,6 +25,9 @@ public class GatewayRoutsConfig {
                 .route("inventory-service", r -> r
                         .path("/products/**")
                         .uri("http://localhost:8082"))
+                .route("payment-service", r -> r
+                        .path("/payments/**")
+                        .uri("http://localhost:8083"))
                 .build();
     }
 }
