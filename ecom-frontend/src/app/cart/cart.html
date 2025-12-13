@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<!-- <div class="container mt-4">
   <h3>Your Cart</h3>
 
   <div *ngIf="message" class="alert alert-success">{{ message }}</div>
@@ -34,7 +34,59 @@
   <div class="mt-3" *ngIf="items.length > 0">
     <h5>Total: {{ total | currency }}</h5>
     <button class="btn btn-secondary me-2" (click)="clear()">Clear Cart</button>
-    <!-- <button class="btn btn-primary" (click)="checkout()">Checkout</button> -->
      <button class="btn btn-primary" (click)="goToPayment()">Proceed to payment</button>
+  </div>
+</div> -->
+
+<div class="cart-page container mt-4">
+  <h3>Your Cart</h3>
+
+  <div *ngIf="message" class="alert alert-success mt-2">{{ message }}</div>
+  <div *ngIf="error" class="alert alert-danger mt-2">{{ error }}</div>
+
+  <div class="mt-3">
+    <table class="table align-middle" *ngIf="items.length > 0; else emptyCart">
+      <thead class="table-light">
+        <tr>
+          <th>Product</th>
+          <th style="width: 120px;">Price</th>
+          <th style="width: 80px;">Qty</th>
+          <th style="width: 140px;">Subtotal</th>
+          <th style="width: 80px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items">
+          <td>{{ item.name }}</td>
+          <td>{{ item.price | currency }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.price * item.quantity | currency }}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-danger" (click)="remove(item)">
+              Remove
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyCart>
+      <div class="empty-cart text-center text-muted py-5">
+        Your cart is empty.
+      </div>
+    </ng-template>
+
+    <div class="cart-summary d-flex justify-content-between align-items-center mt-3"
+         *ngIf="items.length > 0">
+      <h5 class="mb-0">Total: {{ total | currency }}</h5>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" (click)="clear()">
+          Clear Cart
+        </button>
+        <button class="btn btn-primary" (click)="goToPayment()">
+          Proceed to payment
+        </button>
+      </div>
+    </div>
   </div>
 </div>

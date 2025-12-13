@@ -1,0 +1,40 @@
+.cart-page {
+  h3 {
+    font-weight: 600;
+  }
+
+  .table {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.08);
+
+    th {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  }
+
+  .empty-cart {
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    box-shadow: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.08);
+  }
+
+  .cart-summary {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.08);
+
+    h5 {
+      font-weight: 600;
+    }
+  }
+
+  .btn-outline-danger {
+    border-radius: 999px;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.7rem;
+  }
+}

@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<!-- <div class="container mt-4">
   <h3>Payment</h3>
 
   <p>Total: {{ total | currency }}</p>
@@ -11,4 +11,29 @@
   <button class="btn btn-primary mt-3" (click)="onPay()" [disabled]="isLoading">
     {{ isLoading ? 'Processing...' : 'Pay now' }}
   </button>
+</div> -->
+
+<div class="payment-page container mt-4">
+  <h3>Payment</h3>
+
+  <p class="payment-total">Total: {{ total | currency }}</p>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+  <div class="card payment-card mt-3">
+    <div class="card-body">
+      <h6 class="card-subtitle mb-3 text-muted">Card details</h6>
+      <div id="card-element" class="card-element"></div>
+
+      <button
+        class="btn btn-primary mt-3 w-100"
+        (click)="onPay()
+"
+        [disabled]="isLoading"
+      >
+        {{ isLoading ? 'Processing...' : 'Pay now' }}
+      </button>
+    </div>
+  </div>
 </div>
